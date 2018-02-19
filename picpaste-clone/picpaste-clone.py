@@ -4,12 +4,16 @@ from werkzeug.utils import secure_filename
 import os
 import random
 import uuid
+import boto3
 
 app = Flask(__name__)
+bucket = 'images.estranger.net'
+s3 = boto3.resource('s3')
+
+app.config['UPLOADED_PHOTOS_DEST'] = '/var/www/html/images/'
 
 photos = UploadSet('photos', IMAGES)
 
-app.config['UPLOADED_PHOTOS_DEST'] = '/var/www/html/images/'
 configure_uploads(app, photos)
 
 @app.route('/upload', methods=['GET', 'POST'])
@@ -17,15 +21,18 @@ def upload():
     if request.method == 'POST' and 'photo' in request.files:
         image = str(uuid.uuid4()) + ".jpg"
         filename = photos.save(request.files['photo'], "./", image)
-        #return " <HTML><BODY>url: http://sysop.estranger.net/images/%s <BR>delete: http://sysop.estranger.net:5000/delete/%s </BODY></HTML>" % (image,image)
-        return render_template('uploaded.html', image=image)
-    return render_template('upload.html')
+        uploadFile = str(app.config['UPLOADED_PHOTOS_DEST']) + filename
+        data = open(uploadFile, 'rb')
+        s3.Bucket(bucket).put_object(Key=image, Body=data, ACL='public-read', ContentType='image/jpeg')
+        os.remove(uploadFile)
+        return render_template('uploaded.html', image=image, bucket=bucket)
+    return "NO!"
 
 @app.route('/delete/<string:image>/', methods=['GET'])
 def delete(image):
-   filename = '/var/www/html/images/' + image
-   os.chmod(filename, 000)
-   return "Deleted!"
+   object = s3.Bucket(bucket).Object(image)
+   object.Acl().put(ACL='private')
+   return render_template('deleted.html')
 
 if __name__ == '__main__':
     app.run(debug=True)
