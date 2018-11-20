@@ -8,8 +8,8 @@ from dse.cluster import Cluster, ExecutionProfile, EXEC_PROFILE_DEFAULT
 from dse.auth import PlainTextAuthProvider
 
 #Configuration
-contactpoints = ['66.70.191.99']
-auth_provider = PlainTextAuthProvider (username='travian', password='Password123')
+contactpoints = ['127.0.0.1']
+auth_provider = PlainTextAuthProvider (username='travian', password='asdfadsf')
 
 cluster = Cluster( contact_points=contactpoints,
                    auth_provider=auth_provider
@@ -28,7 +28,7 @@ async def on_ready():
 
 @client.event
 async def on_message(message):
-    relaychan = discord.Object(id='506599354413350912')
+    relaychan = discord.Object(id='123')
     #relaychan = message.channel
     if message.author == client.user:
         return
@@ -168,4 +168,4 @@ async def on_message(message):
         await asyncio.sleep(5)
         await client.send_message(message.channel, 'Done sleeping')
 
-client.run('NTEwMTI1NDEwNTYzMTI5MzQ1.DsYFkA.8PjeWYzliKkbZoEmclIMe4PlGXY')
+client.run('sdsd.dfdfdfdfdfdfdf.sdsdsd')
